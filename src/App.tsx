@@ -7,6 +7,7 @@ import {
   updateSettings,
   viewOnMap,
 } from './lib/api';
+import { fallbackBootstrap } from './lib/fallbackData';
 import type {
   AlertItem,
   BootstrapResponse,
@@ -38,6 +39,7 @@ function App() {
   });
   const [settingsDraft, setSettingsDraft] = useState<SettingsState | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
 
   useEffect(() => {
     getBootstrap()
@@ -45,9 +47,14 @@ function App() {
         setBootstrap(data);
         setActiveScreen(data.selectedScreen);
         setSettingsDraft(data.settings);
+        setIsOfflineMode(false);
       })
-      .catch((error: Error) => {
-        setMessage(error.message);
+      .catch(() => {
+        setBootstrap(fallbackBootstrap);
+        setActiveScreen(fallbackBootstrap.selectedScreen);
+        setSettingsDraft(fallbackBootstrap.settings);
+        setIsOfflineMode(true);
+        setMessage('Backend is offline on this deployment. Running in demo mode with local data.');
       });
   }, []);
 
@@ -67,6 +74,19 @@ function App() {
       setActiveScreen('dashboard');
       setSettingsDraft(refreshed.settings);
     } catch (error) {
+      if (isOfflineMode && bootstrap) {
+        const nextRole = bootstrap.roles.find((role) => role.id === roleId);
+        setBootstrap({
+          ...bootstrap,
+          selectedRoleId: roleId,
+          profile: {
+            ...bootstrap.profile,
+            role: nextRole?.name ?? bootstrap.profile.role,
+          },
+        });
+        setActiveScreen('dashboard');
+        return;
+      }
       setMessage(error instanceof Error ? error.message : 'Unable to update commuter profile');
     }
   }
@@ -80,6 +100,10 @@ function App() {
         setBootstrap({ ...bootstrap, settings: response.settings });
       }
     } catch (error) {
+      if (isOfflineMode && bootstrap) {
+        setBootstrap({ ...bootstrap, settings: nextSettings });
+        return;
+      }
       setMessage(error instanceof Error ? error.message : 'Unable to save settings');
     }
   }
@@ -93,6 +117,42 @@ function App() {
       setBootstrap(refreshed);
       setActiveScreen('feed');
     } catch (error) {
+      if (isOfflineMode && bootstrap) {
+        const offlineHazard: Hazard = {
+          id: `haz-offline-${Date.now()}`,
+          title: reportDraft.title,
+          summary: reportDraft.summary,
+          category: reportDraft.category,
+          distance: 'Just reported',
+          severity: reportDraft.severity,
+          status: 'active',
+          recommendation: reportDraft.recommendation,
+          createdAt: 'Now',
+          confidence: 100,
+          position: { top: '40%', left: '48%' },
+        };
+
+        setBootstrap({
+          ...bootstrap,
+          hazards: [offlineHazard, ...bootstrap.hazards],
+          alerts: [
+            {
+              id: `alert-offline-${Date.now()}`,
+              title: 'Report submitted (demo mode)',
+              detail: reportDraft.title,
+              time: 'Now',
+              tone: 'success',
+            },
+            ...bootstrap.alerts.slice(0, 4),
+          ],
+          stats: {
+            ...bootstrap.stats,
+            reportsSent: bootstrap.stats.reportsSent + 1,
+          },
+        });
+        setActiveScreen('feed');
+        return;
+      }
       setMessage(error instanceof Error ? error.message : 'Unable to submit report');
     } finally {
       setIsSubmitting(false);
@@ -108,6 +168,11 @@ function App() {
       setBootstrap(refreshed);
       setActiveScreen('dashboard');
     } catch (error) {
+      if (isOfflineMode) {
+        const fallbackMap = 'https://www.google.com/maps/search/?api=1&query=MG%20Road%2C%20Bengaluru';
+        window.open(fallbackMap, '_blank', 'noopener,noreferrer');
+        return;
+      }
       setMessage(error instanceof Error ? error.message : 'Unable to open map view');
     }
   }
@@ -121,6 +186,27 @@ function App() {
       setBootstrap(refreshed);
       setActiveScreen('dashboard');
     } catch (error) {
+      if (isOfflineMode && bootstrap) {
+        setBootstrap({
+          ...bootstrap,
+          alerts: [
+            {
+              id: `alert-offline-${Date.now()}`,
+              title: 'Safe journey started (demo mode)',
+              detail: 'Navigation is guiding through safer segments.',
+              time: 'Now',
+              tone: 'success',
+            },
+            ...bootstrap.alerts.slice(0, 4),
+          ],
+          stats: {
+            ...bootstrap.stats,
+            saferKm: Number((bootstrap.stats.saferKm + 0.2).toFixed(1)),
+          },
+        });
+        setMessage('Safe journey started in demo mode.');
+        return;
+      }
       setMessage(error instanceof Error ? error.message : 'Unable to start journey');
     }
   }

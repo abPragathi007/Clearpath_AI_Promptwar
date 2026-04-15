@@ -136,7 +136,7 @@ npm run dev
 ### 4. Open in browser
 
 ```
-http://localhost:3000
+http://localhost:5173
 ```
 
 If port is busy:
@@ -145,6 +145,28 @@ If port is busy:
 $env:PORT='3100'
 npm run dev
 ```
+
+---
+
+## 🌐 GitHub Deployment Notes
+
+This repository now includes a GitHub Pages workflow at `.github/workflows/deploy-pages.yml`.
+
+Important:
+
+* GitHub Pages deploys the frontend only (static files)
+* Backend APIs (`/api/...`) must be deployed separately (Render, Railway, Fly.io, etc.)
+
+If backend is not deployed, the app still runs in demo/offline mode with fallback data.
+
+### Configure backend for deployed frontend
+
+1. Deploy backend server and copy its public URL
+2. In GitHub repository settings, add a repository variable:
+
+  * `VITE_API_BASE_URL=https://your-backend-domain.com`
+
+3. Re-run the `Deploy GitHub Pages` workflow
 
 ---
 
