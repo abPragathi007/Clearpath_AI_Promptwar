@@ -1,0 +1,117 @@
+import type { AlertItem, Hazard, RoleOption, SettingsState, StatsSnapshot } from '../src/types.js';
+
+export const roles: RoleOption[] = [
+  { id: 'cyclist', name: 'Cyclist', description: 'Bike lanes and road hazards', icon: '🚲', accent: '#46f1c5' },
+  { id: 'escooter', name: 'E-Scooter', description: 'Shared path alerts', icon: '🛴', accent: '#b7c6f3' },
+  { id: 'pedestrian', name: 'Pedestrian', description: 'Sidewalk and crossing safety', icon: '🚶', accent: '#ffcf96' },
+  { id: 'wheelchair', name: 'Wheelchair', description: 'Accessible route priority', icon: '♿', accent: '#ffddb8' },
+  {
+    id: 'visually_impaired',
+    name: 'Visually Impaired',
+    description: 'Audio-first alerts',
+    icon: '👁️',
+    accent: '#f59e0b',
+    highlight: true,
+  },
+  { id: 'driver', name: 'Driver', description: 'Bike lane obstruction reporting', icon: '🚗', accent: '#a9b7e4' },
+];
+
+export const hazards: Hazard[] = [
+  {
+    id: 'haz-1',
+    title: 'Vehicle in Bike Lane',
+    summary: 'Delivery van blocking the protected lane near the junction.',
+    category: 'Vehicle',
+    distance: '45m ahead',
+    severity: 'critical',
+    status: 'active',
+    recommendation: 'Merge left onto the footpath and re-enter after the junction.',
+    createdAt: '2 min ago',
+    confidence: 94,
+    position: { top: '35%', left: '60%' },
+  },
+  {
+    id: 'haz-2',
+    title: 'Pothole Identified',
+    summary: 'Unmarked road depression on the eastbound lane.',
+    category: 'Surface',
+    distance: '80m ahead',
+    severity: 'medium',
+    status: 'watch',
+    recommendation: 'Slow down and move to the inner lane.',
+    createdAt: '8 min ago',
+    confidence: 88,
+    position: { top: '52%', left: '65%' },
+  },
+  {
+    id: 'haz-3',
+    title: 'Sidewalk Construction',
+    summary: 'Temporary barriers interrupt the pedestrian route.',
+    category: 'Construction',
+    distance: '200m ahead',
+    severity: 'low',
+    status: 'active',
+    recommendation: 'Follow the highlighted detour to the parallel street.',
+    createdAt: '15 min ago',
+    confidence: 91,
+    position: { top: '75%', left: '45%' },
+  },
+  {
+    id: 'haz-4',
+    title: 'Signal Failure',
+    summary: 'Intersection beacon is reporting intermittent outage.',
+    category: 'Traffic',
+    distance: '1.1 km',
+    severity: 'high',
+    status: 'resolved',
+    recommendation: 'Proceed with caution and treat as a four-way stop.',
+    createdAt: '1 hr ago',
+    confidence: 96,
+    position: { top: '24%', left: '36%' },
+  },
+];
+
+export const alerts: AlertItem[] = [
+  {
+    id: 'alert-1',
+    title: 'Route protected',
+    detail: 'A safer turn is available 60 meters ahead.',
+    time: 'Now',
+    tone: 'success',
+  },
+  {
+    id: 'alert-2',
+    title: 'Audio guidance active',
+    detail: 'Large text and speech mode are enabled for the selected profile.',
+    time: '1 min',
+    tone: 'warning',
+  },
+  {
+    id: 'alert-3',
+    title: 'Community confirmation',
+    detail: 'Three nearby users validated the bike-lane obstruction.',
+    time: '4 min',
+    tone: 'neutral',
+  },
+];
+
+export const stats: StatsSnapshot = {
+  avoidedHazards: 47,
+  saferKm: 1.2,
+  reportsSent: 12,
+  accuracy: 89,
+  liveCommuters: 328,
+  weeklyReports: [12, 18, 26, 15, 20, 10, 8],
+};
+
+export const defaultSettings: SettingsState = {
+  highContrast: true,
+  audioAlerts: true,
+  screenReader: false,
+  liveBroadcast: true,
+  interfaceScale: 'L',
+  voiceVolume: 85,
+  speechSpeed: 'normal',
+  detectionRadius: 50,
+  cadence: 'immediate',
+};
